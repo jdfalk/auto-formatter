@@ -1,0 +1,49 @@
+# file: .prettierignore
+# Ignore artifacts:
+build/
+dist/
+coverage/
+*.log
+
+# Ignore node modules
+node_modules/
+
+# Ignore generated files
+*.generated.*
+*.min.*
+
+# Ignore package lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Ignore binary files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Ignore specific directories
+.git/
+.vscode/
+.idea/
+.DS_Store
+
+# Ignore go generated files
+*.pb.go
+*.gen.go
+
+# Ignore vendor directories
+vendor/
+
+# Ignore temp files
+tmp/
+temp/
+*.tmp
+*.temp
