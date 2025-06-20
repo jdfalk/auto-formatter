@@ -1,0 +1,15 @@
+# file: requirements.txt
+# Python dependencies for the issue manager script
+
+# HTTP requests
+requests>=2.31.0
+
+# JSON handling is built-in to Python
+# argparse is built-in to Python
+# os is built-in to Python
+# sys is built-in to Python
+# collections is built-in to Python
+# typing is built-in to Python
+
+# Development dependencies (optional)
+# Install with: pip install -r requirements-dev.txt
