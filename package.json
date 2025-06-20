@@ -38,9 +38,9 @@
   "homepage": "https://github.com/jdfalk/auto-formatter#readme",
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "action-validator": "^0.5.0",
     "eslint": "^8.0.0",
-    "prettier": "^3.0.0",
-    "action-validator": "^0.5.0"
+    "prettier": "3.5.3"
   },
   "engines": {
     "node": ">=18.0.0"
