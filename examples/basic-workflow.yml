@@ -1,0 +1,35 @@
+# file: examples/basic-workflow.yml
+# Example: Basic auto-formatting workflow
+# Place this file at .github/workflows/auto-format.yml in your repository
+
+name: Auto Format Code
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  format:
+    name: Auto Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Auto Format Code
+        uses: jdfalk/auto-formatter@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          languages: "all"
+          add-pr-comment: true

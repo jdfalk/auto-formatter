@@ -1,0 +1,173 @@
+# file: examples/monorepo-workflow.yml
+# Example: Monorepo workflow with different formatting per directory
+# Place this file at .github/workflows/monorepo-format.yml in your repository
+
+name: Monorepo Auto Format
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  detect-changes:
+    name: Detect Changed Directories
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      scripts: ${{ steps.changes.outputs.scripts }}
+      docs: ${{ steps.changes.outputs.docs }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            scripts:
+              - 'scripts/**'
+            docs:
+              - 'docs/**'
+              - '*.md'
+
+  format-backend:
+    name: Format Backend (Python + Go)
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Format Backend Code
+        uses: jdfalk/auto-formatter@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          languages: "python,go"
+          python-line-length: 120
+          working-directory: "backend"
+          commit-message: "style: auto-format backend code"
+
+  format-frontend:
+    name: Format Frontend (JS/TS + CSS)
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Format Frontend Code
+        uses: jdfalk/auto-formatter@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          languages: "nodejs,css,html"
+          working-directory: "frontend"
+          commit-message: "style: auto-format frontend code"
+
+  format-scripts:
+    name: Format Scripts (Python)
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.scripts == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Format Scripts
+        uses: jdfalk/auto-formatter@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          languages: "python"
+          python-line-length: 88
+          working-directory: "scripts"
+          commit-message: "style: auto-format scripts"
+
+  format-docs:
+    name: Format Documentation
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Format Documentation
+        uses: jdfalk/auto-formatter@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          languages: "markdown"
+          working-directory: "."
+          commit-message: "docs: auto-format documentation"
+
+  summary:
+    name: Format Summary
+    runs-on: ubuntu-latest
+    needs: [format-backend, format-frontend, format-scripts, format-docs]
+    if: always()
+
+    steps:
+      - name: Post Summary Comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const jobs = [
+              { name: 'Backend', needed: '${{ needs.detect-changes.outputs.backend }}', result: '${{ needs.format-backend.result }}' },
+              { name: 'Frontend', needed: '${{ needs.detect-changes.outputs.frontend }}', result: '${{ needs.format-frontend.result }}' },
+              { name: 'Scripts', needed: '${{ needs.detect-changes.outputs.scripts }}', result: '${{ needs.format-scripts.result }}' },
+              { name: 'Docs', needed: '${{ needs.detect-changes.outputs.docs }}', result: '${{ needs.format-docs.result }}' }
+            ];
+
+            const results = jobs.filter(job => job.needed === 'true').map(job => {
+              const icon = job.result === 'success' ? '✅' : job.result === 'skipped' ? '⏭️' : '❌';
+              return `${icon} **${job.name}**: ${job.result}`;
+            });
+
+            if (results.length === 0) {
+              results.push('ℹ️ No formatting needed - no relevant files changed');
+            }
+
+            const comment = `## 🤖 Monorepo Formatting Results
+
+            ${results.join('\n')}
+
+            *Auto-formatting completed for changed directories only.*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
