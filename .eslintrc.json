@@ -22,7 +22,7 @@
         ],
         "quotes": [
             "error",
-            "double"
+            "single"
         ],
         "semi": [
             "error",
@@ -99,6 +99,14 @@
         ],
         "space-infix-ops": [
             "error"
+        ],
+        "max-len": [
+            "error",
+            {
+                "code": 80,
+                "ignoreUrls": true,
+                "ignoreStrings": true
+            }
         ]
     },
     "overrides": [
