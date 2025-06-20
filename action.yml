@@ -1,0 +1,913 @@
+# file: action.yml
+name: "Auto Formatter"
+description: "Comprehensive code formatter and linter for multiple languages following Google style guides - Python, Go, C++, C#, Node.js, TypeScript, Angular, CSS, Markdown, HTML, JSON, R, Swift, Shell and more"
+author: "jdfalk"
+
+branding:
+  icon: "code"
+  color: "blue"
+
+inputs:
+  token:
+    description: "GitHub token for pushing changes"
+    required: false
+    default: ${{ github.token }}
+
+  languages:
+    description: "Comma-separated list of languages to format and lint (python,go,nodejs,css,markdown,html,cpp,csharp,typescript,json,r,swift,shell,angular,all)"
+    required: false
+    default: "all"
+
+  enable-linting:
+    description: "Enable linting in addition to formatting"
+    required: false
+    default: "true"
+
+  fail-on-lint-errors:
+    description: "Fail the action if linting errors are found"
+    required: false
+    default: "false"
+
+  python-line-length:
+    description: "Maximum line length for Python (default: 88)"
+    required: false
+    default: "88"
+
+  commit-message:
+    description: "Custom commit message for auto-format commits"
+    required: false
+    default: "style: auto-format code with multiple formatters"
+
+  skip-if-no-changes:
+    description: "Skip committing if no changes are found"
+    required: false
+    default: "true"
+
+  add-pr-comment:
+    description: "Add a comment to the PR when formatting is applied"
+    required: false
+    default: "true"
+
+  working-directory:
+    description: "Working directory to run the formatter in"
+    required: false
+    default: "."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check if last commit was auto-format
+      id: check_commit
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        # Get the last commit message
+        LAST_COMMIT_MSG=$(git log -1 --pretty=%B 2>/dev/null || echo "")
+        if [[ "$LAST_COMMIT_MSG" =~ "style: auto-format" ]]; then
+          echo "skip=true" >> $GITHUB_OUTPUT
+          echo "Last commit was auto-format, skipping"
+        else
+          echo "skip=false" >> $GITHUB_OUTPUT
+          echo "Proceeding with format check"
+        fi
+
+    - name: Set up Python
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'python') || contains(inputs.languages, 'all'))
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Set up Go
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'go') || contains(inputs.languages, 'all'))
+      uses: actions/setup-go@v5
+      with:
+        go-version: "1.24"
+
+    - name: Set up Node.js
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'nodejs') || contains(inputs.languages, 'css') || contains(inputs.languages, 'markdown') || contains(inputs.languages, 'html') || contains(inputs.languages, 'typescript') || contains(inputs.languages, 'angular') || contains(inputs.languages, 'json') || contains(inputs.languages, 'all'))
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+
+    - name: Set up .NET
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'csharp') || contains(inputs.languages, 'all'))
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: "8.0.x"
+
+    - name: Set up Swift
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'swift') || contains(inputs.languages, 'all')) && runner.os == 'macOS'
+      shell: bash
+      run: |
+        echo "Swift is pre-installed on macOS runners"
+
+    - name: Set up R
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'r') || contains(inputs.languages, 'all'))
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: "release"
+
+    - name: Install formatters and linters
+      if: steps.check_commit.outputs.skip == 'false'
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Installing formatters and linters..."
+
+        # Install Python formatters and linters
+        if [[ "${{ inputs.languages }}" == *"python"* || "${{ inputs.languages }}" == "all" ]]; then
+          echo "Installing Python formatters and linters..."
+          pip install --upgrade pip
+          pip install ruff black isort pylint
+        fi
+
+        # Install Go formatters and linters
+        if [[ "${{ inputs.languages }}" == *"go"* || "${{ inputs.languages }}" == "all" ]]; then
+          echo "Installing Go formatters and linters..."
+          go install golang.org/x/tools/cmd/goimports@latest
+          go install mvdan.cc/gofumpt@latest
+          go install github.com/segmentio/golines@latest
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        fi
+
+        # Install Node.js formatters and linters
+        if [[ "${{ inputs.languages }}" == *"nodejs"* || "${{ inputs.languages }}" == *"css"* || "${{ inputs.languages }}" == *"markdown"* || "${{ inputs.languages }}" == *"html"* || "${{ inputs.languages }}" == *"typescript"* || "${{ inputs.languages }}" == *"angular"* || "${{ inputs.languages }}" == *"json"* || "${{ inputs.languages }}" == "all" ]]; then
+          echo "Installing Node.js formatters and linters..."
+          npm install -g prettier@latest eslint@latest stylelint@latest markdownlint-cli@latest html-tidy@latest @prettier/plugin-xml jsonlint@latest
+          npm install -g @typescript-eslint/parser @typescript-eslint/eslint-plugin
+          npm install -g @angular-eslint/eslint-plugin @angular-eslint/template-parser
+        fi
+
+        # Install C++ linters
+        if [[ "${{ inputs.languages }}" == *"cpp"* || "${{ inputs.languages }}" == "all" ]]; then
+          echo "Installing C++ linters..."
+          pip install cpplint
+        fi
+
+        # Install Shell linters
+        if [[ "${{ inputs.languages }}" == *"shell"* || "${{ inputs.languages }}" == "all" ]]; then
+          echo "Installing Shell linters..."
+          # Install shellcheck
+          if command -v apt-get &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y shellcheck
+          elif command -v brew &> /dev/null; then
+            brew install shellcheck
+          else
+            echo "Warning: Could not install shellcheck automatically"
+          fi
+          # Install shfmt
+          go install mvdan.cc/sh/v3/cmd/shfmt@latest
+        fi
+
+        # Install Swift linters (macOS only)
+        if [[ "${{ inputs.languages }}" == *"swift"* || "${{ inputs.languages }}" == "all" ]] && [[ "$RUNNER_OS" == "macOS" ]]; then
+          echo "Installing Swift linters..."
+          if command -v brew &> /dev/null; then
+            brew install swiftlint
+          else
+            echo "Warning: brew not available, cannot install swiftlint"
+          fi
+        fi
+
+        # Install R linters
+        if [[ "${{ inputs.languages }}" == *"r"* || "${{ inputs.languages }}" == "all" ]]; then
+          echo "Installing R linters..."
+          Rscript -e "install.packages(c('lintr', 'styler'), repos='https://cran.rstudio.com/')"
+        fi
+
+    - name: Run Python formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'python') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting Python files..."
+
+        # Find Python files
+        if find . -name "*.py" -type f | grep -q .; then
+          echo "Found Python files, applying formatting and linting..."
+
+          # Run ruff format (replaces black)
+          ruff format --line-length ${{ inputs.python-line-length }} .
+
+          # Run ruff check with auto-fix (comprehensive linting)
+          ruff check --fix --line-length ${{ inputs.python-line-length }} .
+
+          # Run isort for import sorting
+          isort --profile google --line-length ${{ inputs.python-line-length }} .
+
+          # Run additional linting if enabled
+          if [[ "${{ inputs.enable-linting }}" == "true" ]]; then
+            echo "Running additional Python linting..."
+
+            # Create temporary pylint config for Google style
+            cat > .pylintrc << 'EOF'
+        [MAIN]
+        load-plugins=pylint.extensions.docparams
+
+        [MESSAGES CONTROL]
+        disable=C0114,C0115,C0116,R0903
+
+        [FORMAT]
+        max-line-length=${{ inputs.python-line-length }}
+        indent-string=
+
+        [DESIGN]
+        max-args=10
+        max-locals=20
+        max-returns=6
+        max-branches=15
+        max-statements=60
+        max-parents=7
+        max-attributes=10
+        max-public-methods=20
+        max-bool-expr=5
+
+        [IMPORTS]
+        deprecated-modules=regsub,TERMIOS,Bastion,rexec
+
+        [CLASSES]
+        valid-classmethod-first-arg=cls
+        valid-metaclass-classmethod-first-arg=mcs
+        EOF
+
+            # Run pylint with Google style guide
+            pylint --rcfile=.pylintrc **/*.py || true
+            rm -f .pylintrc
+
+            # Run ruff check again without auto-fix for reporting
+            if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+              ruff check --line-length ${{ inputs.python-line-length }} .
+            else
+              ruff check --line-length ${{ inputs.python-line-length }} . || true
+            fi
+          fi
+
+          echo "Python formatting and linting complete"
+        else
+          echo "No Python files found"
+        fi
+
+    - name: Run Go formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'go') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting Go files..."
+
+        # Find Go files
+        if find . -name "*.go" -type f | grep -q .; then
+          echo "Found Go files, applying formatting and linting..."
+
+          # Run gofumpt (stricter gofmt)
+          gofumpt -w .
+
+          # Run goimports
+          goimports -w .
+
+          # Run golines for long lines
+          golines -w --max-len=120 --base-formatter=gofumpt .
+
+          # Run go mod tidy if go.mod exists
+          if [ -f "go.mod" ]; then
+            go mod tidy
+          fi
+
+          # Run linting if enabled
+          if [[ "${{ inputs.enable-linting }}" == "true" ]]; then
+            echo "Running Go linting..."
+
+            # Create golangci-lint config for Google style
+            cat > .golangci.yml << 'EOF'
+        run:
+          timeout: 5m
+          tests: true
+
+        linters:
+          enable:
+            - errcheck
+            - gosimple
+            - govet
+            - ineffassign
+            - staticcheck
+            - typecheck
+            - unused
+            - gofmt
+            - goimports
+            - goconst
+            - gocyclo
+            - godot
+            - gofumpt
+            - gosec
+            - misspell
+            - prealloc
+            - revive
+            - unconvert
+            - unparam
+
+        linters-settings:
+          gofumpt:
+            extra-rules: true
+          gocyclo:
+            min-complexity: 15
+          revive:
+            rules:
+              - name: exported
+                arguments: [true]
+              - name: package-comments
+              - name: var-naming
+              - name: function-naming
+
+        issues:
+          exclude-use-default: false
+        EOF
+
+            # Run golangci-lint
+            if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+              golangci-lint run
+            else
+              golangci-lint run || true
+            fi
+
+            rm -f .golangci.yml
+          fi
+
+          echo "Go formatting and linting complete"
+        else
+          echo "No Go files found"
+        fi
+
+    - name: Run Node.js/JavaScript/TypeScript formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'nodejs') || contains(inputs.languages, 'typescript') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting JavaScript/TypeScript files..."
+
+        # Find JS/TS files
+        if find . \( -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" -o -name "*.vue" \) -type f | grep -q .; then
+          echo "Found JavaScript/TypeScript files, applying formatting and linting..."
+
+          # Run prettier
+          prettier --write "**/*.{js,jsx,ts,tsx,vue,json}"
+
+          # Enhanced linting if enabled
+          if [[ "${{ inputs.enable-linting }}" == "true" ]]; then
+            echo "Running JavaScript/TypeScript linting..."
+
+            # Create comprehensive ESLint config for Google style
+            cat > .eslintrc.json << 'EOF'
+        {
+          "env": {
+            "browser": true,
+            "es2021": true,
+            "node": true
+          },
+          "extends": [
+            "eslint:recommended",
+            "@typescript-eslint/recommended"
+          ],
+          "parser": "@typescript-eslint/parser",
+          "parserOptions": {
+            "ecmaVersion": "latest",
+            "sourceType": "module"
+          },
+          "plugins": [
+            "@typescript-eslint"
+          ],
+          "rules": {
+            "indent": ["error", 2],
+            "linebreak-style": ["error", "unix"],
+            "quotes": ["error", "single"],
+            "semi": ["error", "always"],
+            "no-trailing-spaces": "error",
+            "max-len": ["error", { "code": 80 }],
+            "comma-dangle": ["error", "always-multiline"],
+            "object-curly-spacing": ["error", "always"],
+            "array-bracket-spacing": ["error", "never"],
+            "space-before-function-paren": ["error", "never"],
+            "@typescript-eslint/no-unused-vars": "error",
+            "@typescript-eslint/explicit-function-return-type": "warn"
+          }
+        }
+        EOF
+
+            # Run ESLint with auto-fix
+            if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+              eslint --fix "**/*.{js,jsx,ts,tsx,vue}"
+            else
+              eslint --fix "**/*.{js,jsx,ts,tsx,vue}" || true
+            fi
+
+            rm -f .eslintrc.json
+          else
+            # Basic ESLint with auto-fix if config exists
+            if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ] || [ -f ".eslintrc.yaml" ] || [ -f ".eslintrc.yml" ] || [ -f "eslint.config.js" ]; then
+              eslint --fix "**/*.{js,jsx,ts,tsx,vue}" || true
+            fi
+          fi
+
+          echo "JavaScript/TypeScript formatting and linting complete"
+        else
+          echo "No JavaScript/TypeScript files found"
+        fi
+
+    - name: Run Angular formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'angular') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting Angular files..."
+
+        # Check if this is an Angular project
+        if [ -f "angular.json" ] || find . -name "*.component.ts" -o -name "*.service.ts" -o -name "*.module.ts" | grep -q .; then
+          echo "Found Angular files, applying formatting and linting..."
+
+          # Run prettier for Angular files
+          prettier --write "**/*.{ts,html,scss,css}"
+
+          # Enhanced Angular linting if enabled
+          if [[ "${{ inputs.enable-linting }}" == "true" ]]; then
+            echo "Running Angular-specific linting..."
+
+            # Create Angular ESLint config
+            cat > .eslintrc.angular.json << 'EOF'
+        {
+          "env": {
+            "browser": true,
+            "es2021": true
+          },
+          "extends": [
+            "eslint:recommended",
+            "@typescript-eslint/recommended",
+            "@angular-eslint/recommended",
+            "@angular-eslint/template/process-inline-templates"
+          ],
+          "parser": "@typescript-eslint/parser",
+          "parserOptions": {
+            "ecmaVersion": "latest",
+            "sourceType": "module",
+            "project": "./tsconfig.json"
+          },
+          "plugins": [
+            "@typescript-eslint",
+            "@angular-eslint"
+          ],
+          "rules": {
+            "@angular-eslint/directive-selector": [
+              "error",
+              { "type": "attribute", "prefix": "app", "style": "camelCase" }
+            ],
+            "@angular-eslint/component-selector": [
+              "error",
+              { "type": "element", "prefix": "app", "style": "kebab-case" }
+            ],
+            "@typescript-eslint/no-unused-vars": "error",
+            "@typescript-eslint/explicit-function-return-type": "warn",
+            "max-len": ["error", { "code": 140 }]
+          }
+        }
+        EOF
+
+            # Run Angular ESLint
+            if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+              eslint --config .eslintrc.angular.json --fix "**/*.{ts,html}"
+            else
+              eslint --config .eslintrc.angular.json --fix "**/*.{ts,html}" || true
+            fi
+
+            rm -f .eslintrc.angular.json
+          fi
+
+          echo "Angular formatting and linting complete"
+        else
+          echo "No Angular files found"
+        fi
+
+    - name: Run C++ formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'cpp') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting C++ files..."
+
+        # Find C++ files
+        if find . \( -name "*.cpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.h" -o -name "*.hpp" -o -name "*.hxx" \) -type f | grep -q .; then
+          echo "Found C++ files, applying formatting and linting..."
+
+          # Run clang-format if available
+          if command -v clang-format &> /dev/null; then
+            echo "Running clang-format..."
+            find . \( -name "*.cpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.h" -o -name "*.hpp" -o -name "*.hxx" \) -exec clang-format -i {} \;
+          else
+            echo "clang-format not available, skipping C++ formatting"
+          fi
+
+          # Run linting if enabled
+          if [[ "${{ inputs.enable-linting }}" == "true" ]]; then
+            echo "Running C++ linting with cpplint..."
+
+            # Run cpplint with Google style
+            if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+              find . \( -name "*.cpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.h" -o -name "*.hpp" -o -name "*.hxx" \) -exec cpplint --filter=-whitespace/tab {} \;
+            else
+              find . \( -name "*.cpp" -o -name "*.cc" -o -name "*.cxx" -o -name "*.h" -o -name "*.hpp" -o -name "*.hxx" \) -exec cpplint --filter=-whitespace/tab {} \; || true
+            fi
+          fi
+
+          echo "C++ formatting and linting complete"
+        else
+          echo "No C++ files found"
+        fi
+
+    - name: Run C# formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'csharp') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting C# files..."
+
+        # Find C# files
+        if find . -name "*.cs" -type f | grep -q .; then
+          echo "Found C# files, applying formatting and linting..."
+
+          # Run dotnet format if available
+          if command -v dotnet &> /dev/null; then
+            echo "Running dotnet format..."
+
+            # Check if there's a solution or project file
+            if find . \( -name "*.sln" -o -name "*.csproj" \) -type f | grep -q .; then
+              if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+                dotnet format --verify-no-changes
+              else
+                dotnet format || true
+              fi
+            else
+              echo "No .NET solution or project file found, skipping dotnet format"
+            fi
+          else
+            echo "dotnet CLI not available, skipping C# formatting"
+          fi
+
+          echo "C# formatting and linting complete"
+        else
+          echo "No C# files found"
+        fi
+
+    - name: Run JSON formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'json') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting JSON files..."
+
+        # Find JSON files
+        if find . -name "*.json" -type f | grep -q .; then
+          echo "Found JSON files, applying formatting and linting..."
+
+          # Run prettier for JSON
+          prettier --write "**/*.json"
+
+          # Run linting if enabled
+          if [[ "${{ inputs.enable-linting }}" == "true" ]]; then
+            echo "Running JSON linting..."
+
+            if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+              find . -name "*.json" -exec jsonlint {} \;
+            else
+              find . -name "*.json" -exec jsonlint {} \; || true
+            fi
+          fi
+
+          echo "JSON formatting and linting complete"
+        else
+          echo "No JSON files found"
+        fi
+
+    - name: Run Shell script formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'shell') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting Shell scripts..."
+
+        # Find shell script files
+        if find . \( -name "*.sh" -o -name "*.bash" \) -type f | grep -q .; then
+          echo "Found shell scripts, applying formatting and linting..."
+
+          # Run shfmt if available
+          if command -v shfmt &> /dev/null; then
+            echo "Running shfmt..."
+            shfmt -w -i 2 -ci -bn .
+          else
+            echo "shfmt not available, skipping shell formatting"
+          fi
+
+          # Run linting if enabled
+          if [[ "${{ inputs.enable-linting }}" == "true" ]]; then
+            echo "Running shell script linting with shellcheck..."
+
+            if command -v shellcheck &> /dev/null; then
+              if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+                find . \( -name "*.sh" -o -name "*.bash" \) -exec shellcheck {} \;
+              else
+                find . \( -name "*.sh" -o -name "*.bash" \) -exec shellcheck {} \; || true
+              fi
+            else
+              echo "shellcheck not available, skipping shell linting"
+            fi
+          fi
+
+          echo "Shell script formatting and linting complete"
+        else
+          echo "No shell scripts found"
+        fi
+
+    - name: Run Swift formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'swift') || contains(inputs.languages, 'all')) && runner.os == 'macOS'
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting Swift files..."
+
+        # Find Swift files
+        if find . -name "*.swift" -type f | grep -q .; then
+          echo "Found Swift files, applying formatting and linting..."
+
+          # Run linting if enabled
+          if [[ "${{ inputs.enable-linting }}" == "true" ]]; then
+            echo "Running Swift linting with swiftlint..."
+
+            if command -v swiftlint &> /dev/null; then
+              # Create basic swiftlint config
+              cat > .swiftlint.yml << 'EOF'
+        rules:
+          - trailing_whitespace
+          - leading_whitespace
+          - line_length
+          - file_length
+          - type_name
+          - variable_name
+          - function_name
+          - cyclomatic_complexity
+          - function_body_length
+          - type_body_length
+
+        line_length:
+          warning: 120
+          error: 150
+
+        file_length:
+          warning: 500
+          error: 1000
+
+        function_body_length:
+          warning: 50
+          error: 100
+
+        type_body_length:
+          warning: 200
+          error: 350
+        EOF
+
+              # Run swiftlint
+              if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+                swiftlint lint --strict
+              else
+                swiftlint lint || true
+              fi
+
+              # Auto-correct if possible
+              swiftlint autocorrect || true
+
+              rm -f .swiftlint.yml
+            else
+              echo "swiftlint not available, skipping Swift linting"
+            fi
+          fi
+
+          echo "Swift formatting and linting complete"
+        else
+          echo "No Swift files found"
+        fi
+
+    - name: Run R formatting and linting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'r') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting and linting R files..."
+
+        # Find R files
+        if find . \( -name "*.R" -o -name "*.r" -o -name "*.Rmd" \) -type f | grep -q .; then
+          echo "Found R files, applying formatting and linting..."
+
+          if command -v Rscript &> /dev/null; then
+            # Run styler for formatting
+            echo "Running R styler..."
+            Rscript -e "styler::style_dir('.', filetype = c('R', 'Rmd'))" || true
+
+            # Run linting if enabled
+            if [[ "${{ inputs.enable-linting }}" == "true" ]]; then
+              echo "Running R linting with lintr..."
+
+              # Create lintr config
+              cat > .lintr << 'EOF'
+        linters: with_defaults(
+          line_length_linter(120),
+          object_name_linter = NULL,
+          camel_case_linter = NULL,
+          snake_case_linter = NULL
+        )
+        EOF
+
+              if [[ "${{ inputs.fail-on-lint-errors }}" == "true" ]]; then
+                Rscript -e "lintr::lint_dir('.')"
+              else
+                Rscript -e "lintr::lint_dir('.')" || true
+              fi
+
+              rm -f .lintr
+            fi
+          else
+            echo "R not available, skipping R formatting and linting"
+          fi
+
+          echo "R formatting and linting complete"
+        else
+          echo "No R files found"
+        fi
+
+    - name: Run CSS/SCSS/Less formatting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'css') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting CSS/SCSS/Less files..."
+
+        # Find CSS files
+        if find . \( -name "*.css" -o -name "*.scss" -o -name "*.sass" -o -name "*.less" \) -type f | grep -q .; then
+          echo "Found CSS files, applying formatting..."
+
+          # Run prettier for CSS
+          prettier --write "**/*.{css,scss,sass,less}"
+
+          # Run stylelint with auto-fix if config exists
+          if [ -f ".stylelintrc.js" ] || [ -f ".stylelintrc.json" ] || [ -f ".stylelintrc.yaml" ] || [ -f ".stylelintrc.yml" ] || [ -f "stylelint.config.js" ]; then
+            stylelint --fix "**/*.{css,scss,sass,less}" || true
+          fi
+
+          echo "CSS formatting complete"
+        else
+          echo "No CSS files found"
+        fi
+
+    - name: Run Markdown formatting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'markdown') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting Markdown files..."
+
+        # Find Markdown files
+        if find . \( -name "*.md" -o -name "*.markdown" \) -type f | grep -q .; then
+          echo "Found Markdown files, applying formatting..."
+
+          # Run prettier for Markdown
+          prettier --write "**/*.{md,markdown}"
+
+          # Run markdownlint with auto-fix if config exists
+          if [ -f ".markdownlint.json" ] || [ -f ".markdownlint.yaml" ] || [ -f ".markdownlint.yml" ]; then
+            markdownlint --fix "**/*.{md,markdown}" || true
+          fi
+
+          echo "Markdown formatting complete"
+        else
+          echo "No Markdown files found"
+        fi
+
+    - name: Run HTML formatting
+      if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'html') || contains(inputs.languages, 'all'))
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting HTML files..."
+
+        # Find HTML files
+        if find . \( -name "*.html" -o -name "*.htm" \) -type f | grep -q .; then
+          echo "Found HTML files, applying formatting..."
+
+          # Run prettier for HTML
+          prettier --write "**/*.{html,htm}"
+
+          echo "HTML formatting complete"
+        else
+          echo "No HTML files found"
+        fi
+
+    - name: Run additional language formatting
+      if: steps.check_commit.outputs.skip == 'false' && contains(inputs.languages, 'all')
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        echo "Formatting additional language files..."
+
+        # Format YAML files
+        if find . \( -name "*.yml" -o -name "*.yaml" \) -type f | grep -q .; then
+          echo "Formatting YAML files..."
+          prettier --write "**/*.{yml,yaml}"
+        fi
+
+        # Format TOML files
+        if find . -name "*.toml" -type f | grep -q .; then
+          echo "Formatting TOML files..."
+          prettier --write "**/*.toml"
+        fi
+
+        # Format XML files
+        if find . \( -name "*.xml" -o -name "*.svg" \) -type f | grep -q .; then
+          echo "Formatting XML files..."
+          prettier --write "**/*.{xml,svg}"
+        fi
+
+        # Format shell scripts
+        if find . \( -name "*.sh" -o -name "*.bash" \) -type f | grep -q .; then
+          echo "Found shell scripts..."
+          # Note: shfmt would be ideal here but requires additional setup
+          echo "Shell script formatting requires shfmt (not installed by default)"
+        fi
+
+    - name: Check for changes
+      if: steps.check_commit.outputs.skip == 'false'
+      id: changes
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        # Check if there are any changes
+        if [[ -n "$(git status --porcelain)" ]]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "Found formatting changes:"
+          git status --porcelain
+
+          # Show a summary of changes
+          echo "=== Formatting Summary ==="
+          git diff --stat
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+          echo "No formatting changes needed"
+        fi
+
+    - name: Commit and push changes
+      if: steps.check_commit.outputs.skip == 'false' && steps.changes.outputs.changes == 'true' && inputs.skip-if-no-changes == 'false' || (steps.check_commit.outputs.skip == 'false' && steps.changes.outputs.changes == 'true')
+      shell: bash
+      run: |
+        cd ${{ inputs.working-directory }}
+        # Configure git
+        git config --local user.email "action@github.com"
+        git config --local user.name "Auto Formatter Bot"
+
+        # Add all changes
+        git add .
+
+        # Create detailed commit message
+        FORMATTED_LANGUAGES="${{ inputs.languages }}"
+        if [ "$FORMATTED_LANGUAGES" = "all" ]; then
+          FORMATTED_LANGUAGES="Python, Go, Node.js, TypeScript, Angular, C++, C#, CSS, Markdown, HTML, JSON, R, Swift, Shell, and more"
+        fi
+
+        # Commit changes
+        git commit -m "${{ inputs.commit-message }}
+
+        Formatted and linted languages: $FORMATTED_LANGUAGES
+
+        Applied formatters and linters:
+        - Python: ruff format + ruff check + isort + pylint (Google style)
+        - Go: gofumpt + goimports + golines + golangci-lint
+        - JavaScript/TypeScript: prettier + eslint (Google style)
+        - Angular: prettier + @angular-eslint
+        - C++: clang-format + cpplint (Google style)
+        - C#: dotnet format
+        - CSS/SCSS: prettier + stylelint
+        - Markdown: prettier + markdownlint
+        - HTML: prettier
+        - JSON: prettier + jsonlint
+        - Shell: shfmt + shellcheck
+        - Swift: swiftlint (macOS only)
+        - R: styler + lintr
+        - Additional: YAML, TOML, XML with prettier
+
+        Linting enabled: ${{ inputs.enable-linting }}
+        Fail on lint errors: ${{ inputs.fail-on-lint-errors }}
+
+        This is an automated formatting and linting commit following Google style guides."
+
+        # Push changes
+        git push
+
+outputs:
+  changes-made:
+    description: "Whether any formatting changes were made"
+    value: ${{ steps.changes.outputs.changes }}
+
+  skipped:
+    description: "Whether formatting was skipped due to recent auto-format commit"
+    value: ${{ steps.check_commit.outputs.skip }}
