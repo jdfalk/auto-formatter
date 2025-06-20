@@ -1,7 +1,15 @@
 # file: .ruff.toml
-# Ruff configuration for Python formatting and linting
+# Ruff configuration for Google Python Style Guide compliance
+# This configuration follows Google's Python style guide: https://google.github.io/styleguide/pyguide.html
 
-# Exclude a variety of commonly ignored directories.
+# Target Python 3.8+ for broad compatibility
+target-version = "py38"
+
+# Google style guide specifies 80 characters
+line-length = 80
+indent-width = 4
+
+# Exclude common directories
 exclude = [
     ".bzr",
     ".direnv",
@@ -24,69 +32,150 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "proto",
+    "migrations",
 ]
-
-# Same as Black.
-line-length = 88
-indent-width = 4
-
-# Assume Python 3.8+
-target-version = "py38"
 
 [lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
-# McCabe complexity (`C901`) by default.
+# Enable comprehensive rules for Google style compliance
 select = [
-    "E4",     # Import errors
-    "E7",     # Statement errors
-    "E9",     # Runtime errors
-    "F",      # Pyflakes
-    "I",      # isort
-    "UP",     # pyupgrade
-    "B",      # flake8-bugbear
-    "C4",     # flake8-comprehensions
-    "ICN",    # flake8-import-conventions
-    "ISC",    # flake8-implicit-str-concat
-    "PIE",    # flake8-pie
-    "PYI",    # flake8-pyi
-    "RSE",    # flake8-raise
-    "RUF",    # Ruff-specific rules
-    "SIM",    # flake8-simplify
-    "TID",    # flake8-tidy-imports
-    "UP",     # pyupgrade
+    # Pyflakes
+    "F",
+    # pycodestyle errors and warnings
+    "E", "W",
+    # isort
+    "I",
+    # pydocstyle (docstring conventions)
+    "D",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # flake8-comprehensions
+    "C4",
+    # flake8-pie
+    "PIE",
+    # flake8-pytest-style
+    "PT",
+    # flake8-return
+    "RET",
+    # flake8-self
+    "SLF",
+    # flake8-type-checking
+    "TCH",
+    # flake8-unused-arguments
+    "ARG",
+    # flake8-use-pathlib
+    "PTH",
+    # flake8-import-conventions
+    "ICN",
+    # flake8-implicit-str-concat
+    "ISC",
+    # flake8-raise
+    "RSE",
+    # flake8-tidy-imports
+    "TID",
+    # Ruff-specific rules
+    "RUF",
+    # flake8-naming
+    "N",
+    # McCabe complexity
+    "C90",
 ]
 
+# Ignore specific rules that conflict with Google style or are too strict
 ignore = [
-    "E501",   # Line too long (handled by formatter)
-    "B008",   # Do not perform function calls in argument defaults
-    "B904",   # raise-without-from-inside-except
+    # Line length handled by formatter
+    "E501",
+    # Allow TODO comments without issue links
+    "TD002", "TD003",
+    # Allow relative imports
+    "TID252",
+    # Allow print statements (useful for CLIs)
+    "T201",
+    # Allow assert statements
+    "S101",
+    # Don't require docstrings for every function (too verbose)
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
+    # Allow missing docstring in __init__.py
+    "D104",
+    # Allow imperative mood in docstrings
+    "D401",
+    # Allow blank line after docstring
+    "D202",
+    # Allow multi-line summary
+    "D205",
+    # Don't require period at end of docstring
+    "D400",
+    # Allow first line to not end with period
+    "D415",
 ]
 
-# Allow fix for all enabled rules (when `--fix`) is provided.
+# Allow fix for all enabled rules (when `--fix`) is provided
 fixable = ["ALL"]
 unfixable = []
 
-# Allow unused variables when underscore-prefixed.
+# Allow unused variables when prefixed with underscore
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
+[lint.isort]
+# Follow Google's import style
+force-single-line = false
+force-sort-within-sections = true
+known-first-party = []
+known-third-party = []
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+combine-as-imports = true
+split-on-trailing-comma = true
+
+[lint.pydocstyle]
+# Use Google docstring style
+convention = "google"
+
+[lint.per-file-ignores]
+# Allow additional rules to be ignored for specific files
+"__init__.py" = ["F401", "D104"]
+"test_*.py" = ["D103", "D100", "S101", "ARG001"]
+"*_test.py" = ["D103", "D100", "S101", "ARG001"]
+"tests/*.py" = ["D103", "D100", "S101", "ARG001"]
+"conftest.py" = ["D103", "D100"]
+"setup.py" = ["D100"]
+
+[lint.flake8-quotes]
+# Use double quotes (Google style)
+inline-quotes = "double"
+multiline-quotes = "double"
+
+[lint.mccabe]
+# Maximum cyclomatic complexity (Google recommends keeping functions simple)
+max-complexity = 10
+
+[lint.flake8-naming]
+# Google style naming conventions
+classmethod-decorators = ["classmethod"]
+staticmethod-decorators = ["staticmethod"]
+
+[lint.flake8-bugbear]
+# Extend immutable calls
+extend-immutable-calls = ["typer.Argument", "typer.Option"]
+
 [format]
-# Like Black, use double quotes for strings.
+# Use double quotes for strings (Google style preference)
 quote-style = "double"
 
-# Like Black, indent with spaces, rather than tabs.
+# Use spaces for indentation
 indent-style = "space"
 
-# Like Black, respect magic trailing commas.
+# Skip magic trailing commas
 skip-magic-trailing-comma = false
 
-# Like Black, automatically detect the appropriate line ending.
+# Automatically detect line ending
 line-ending = "auto"
 
-# Enable auto-formatting of code examples in docstrings. Markdown,
-# reStructuredText code/literal blocks and doctests are all supported.
+# Enable auto-formatting of code examples in docstrings
 docstring-code-format = true
 
-# Set the line length limit used when formatting code snippets in
-# docstrings.
+# Set the line length limit used when formatting code snippets in docstrings
 docstring-code-line-length = "dynamic"
