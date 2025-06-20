@@ -1,0 +1,53 @@
+# file: .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  test:
+    name: Test Action
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+          npm install
+
+      - name: Run tests
+        run: |
+          python -m pytest test/ -v --cov=scripts
+
+      - name: Lint code
+        run: |
+          ruff check scripts/ test/
+          npx eslint . --ext .js,.json
+
+      - name: Test action locally
+        uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          languages: 'python,nodejs'
+          add-pr-comment: false
