@@ -93,6 +93,7 @@ jobs:
 ### Language-Specific Configuration
 
 #### Python (.ruff.toml)
+
 ```toml
 [format]
 line-length = 88
@@ -105,6 +106,7 @@ ignore = ["E501"]
 ```
 
 #### JavaScript/TypeScript (.prettierrc.json)
+
 ```json
 {
   "semi": true,
@@ -116,6 +118,7 @@ ignore = ["E501"]
 ```
 
 #### CSS (.stylelintrc.json)
+
 ```json
 {
   "extends": ["stylelint-config-standard"],
@@ -247,18 +250,22 @@ jobs:
 ### Common Issues
 
 **Action skips formatting unexpectedly**
+
 - Check if the last commit message contains "style: auto-format"
 - Use workflow dispatch with `force-format: true`
 
 **Permission denied when pushing**
+
 - Ensure `contents: write` permission is set
 - Verify the token has repository access
 
 **Formatters not found**
+
 - The action installs formatters automatically
 - Check the action logs for installation errors
 
 **Large repositories timeout**
+
 - Increase the job timeout: `timeout-minutes: 30`
 - Consider formatting only changed files
 
