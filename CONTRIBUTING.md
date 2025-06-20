@@ -1,4 +1,5 @@
-# file: CONTRIBUTING.md
+<!-- file: CONTRIBUTING.md -->
+
 # Contributing to Auto Formatter
 
 We welcome contributions to the Auto Formatter GitHub Action! This document provides guidelines for contributing to the project.
@@ -15,12 +16,14 @@ We welcome contributions to the Auto Formatter GitHub Action! This document prov
 ### Quick Start
 
 1. **Fork and clone the repository**
+
    ```bash
    git clone https://github.com/your-username/auto-formatter.git
    cd auto-formatter
    ```
 
 2. **Install dependencies**
+
    ```bash
    make install
    # or manually:
@@ -29,11 +32,13 @@ We welcome contributions to the Auto Formatter GitHub Action! This document prov
    ```
 
 3. **Run tests**
+
    ```bash
    make test
    ```
 
 4. **Format and lint code**
+
    ```bash
    make format
    make lint
@@ -44,6 +49,7 @@ We welcome contributions to the Auto Formatter GitHub Action! This document prov
 ### Making Changes
 
 1. **Create a feature branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -54,18 +60,21 @@ We welcome contributions to the Auto Formatter GitHub Action! This document prov
    - Update documentation as needed
 
 3. **Test your changes**
+
    ```bash
    make test
    make lint
    ```
 
 4. **Commit your changes**
+
    ```bash
    git add .
    git commit -m "feat: add new formatting feature"
    ```
 
 5. **Push and create a pull request**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -83,6 +92,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 - **chore**: Changes to the build process or auxiliary tools
 
 Examples:
+
 ```bash
 feat: add support for Rust formatting
 fix: resolve issue with Python line length detection
@@ -102,6 +112,7 @@ test: add tests for Go formatting functionality
 - **Import sorting**: Use isort with Google profile
 
 Example:
+
 ```python
 def process_formatting_request(
     language: str,
@@ -150,6 +161,7 @@ def process_formatting_request(
 - **Test both success and failure cases**
 
 Example test structure:
+
 ```python
 class TestFormattingManager:
     def setup_method(self):
@@ -254,17 +266,20 @@ We use [Semantic Versioning](https://semver.org/):
    - CHANGELOG.md
 
 2. **Run release preparation**
+
    ```bash
    make release
    ```
 
 3. **Create release commit**
+
    ```bash
    git add .
    git commit -m "chore: prepare release v1.2.3"
    ```
 
 4. **Create and push tag**
+
    ```bash
    git tag -a v1.2.3 -m "Release v1.2.3"
    git push origin main --tags
@@ -293,16 +308,19 @@ We use [Semantic Versioning](https://semver.org/):
 ### Common Issues
 
 **Action not working locally**
+
 - Use [act](https://github.com/nektos/act) for local testing
 - Check action.yml syntax with action-validator
 - Verify all required inputs are provided
 
 **Tests failing**
+
 - Ensure all dependencies are installed
 - Check Python path configuration
 - Verify mock configurations are correct
 
 **Formatting not applied**
+
 - Check file patterns and ignore rules
 - Verify formatter installation
 - Review action logs for error messages
