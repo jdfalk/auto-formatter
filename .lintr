@@ -1,0 +1,73 @@
+# file: .lintr
+linters: with_defaults(
+  # Line length (Google/Tidyverse style: 80-120)
+  line_length_linter(120),
+
+  # Object naming (snake_case for tidyverse, BigCamelCase for Google functions)
+  object_name_linter = NULL,  # Disable default to allow both styles
+  camel_case_linter = NULL,   # Allow camelCase
+  snake_case_linter = NULL,   # Allow snake_case
+
+  # Assignment operator (<- preferred over =)
+  assignment_linter(),
+
+  # Spacing rules
+  commas_linter(),
+  infix_spaces_linter(),
+  spaces_left_parentheses_linter(),
+  spaces_inside_linter(),
+
+  # Code structure
+  brace_linter(),
+  paren_brace_linter(),
+
+  # Best practices
+  closed_curly_linter(),
+  open_curly_linter(),
+  semicolon_terminator_linter(),
+  seq_linter(),
+
+  # Function and variable checks
+  object_usage_linter(),
+  unused_import_linter(),
+
+  # Style consistency
+  trailing_blank_lines_linter(),
+  trailing_whitespace_linter(),
+
+  # Avoid attach() - Google style
+  attach_linter(),
+
+  # Prefer explicit returns - Google style
+  implicit_assignment_linter(),
+
+  # Namespace qualification encouraged
+  # (Note: library_call_linter disabled to allow explicit namespace usage)
+  library_call_linter = NULL,
+
+  # Pipe usage
+  pipe_consistency_linter(),
+
+  # Comments and documentation
+  commented_code_linter(),
+
+  # Logical operators
+  vector_logic_linter(),
+
+  # Additional Google style preferences
+  absolute_path_linter(),
+  any_duplicated_linter(),
+  any_is_na_linter(),
+
+  # Allow both quote styles but be consistent
+  single_quotes_linter = NULL,
+  double_quotes_linter = NULL
+)
+
+# Exclusions for auto-generated or vendored code
+exclusions: list(
+  "packrat/",
+  "renv/",
+  ".Rproj.user/",
+  "tests/testthat.R"  # testthat boilerplate
+)
