@@ -1,0 +1,179 @@
+# file: .github/workflows/auto-format.yml
+name: Auto Format Code
+
+# Auto-cancel previous runs when new commits are pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      languages:
+        description: 'Languages to format (comma-separated: python,go,nodejs,css,markdown,html,all)'
+        required: false
+        default: 'all'
+      force-format:
+        description: 'Force formatting even if last commit was auto-format'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  format:
+    name: Auto Format Code
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Use the GitHub token to allow pushing changes
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Checkout the head of the PR for pull requests
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Auto Format with Multi-Language Support
+        uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          languages: ${{ github.event.inputs.languages || 'all' }}
+          python-line-length: 88
+          commit-message: 'style: auto-format code with comprehensive formatters'
+          add-pr-comment: true
+          working-directory: '.'
+
+      - name: Run Issue Management
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python scripts/issue_manager.py format-check
+
+      - name: Handle PR Events
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          python scripts/issue_manager.py event-handler
+
+  quality-check:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    needs: format
+    if: always()
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install quality tools
+        run: |
+          # Python quality tools
+          pip install ruff mypy bandit safety
+
+          # Go quality tools
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+
+          # Node.js quality tools
+          npm install -g eslint@latest typescript@latest
+
+      - name: Run Python quality checks
+        if: always()
+        continue-on-error: true
+        run: |
+          if find . -name "*.py" -type f | grep -q .; then
+            echo "Running Python quality checks..."
+
+            # Linting with ruff
+            ruff check . || true
+
+            # Type checking with mypy
+            mypy . --ignore-missing-imports || true
+
+            # Security checks with bandit
+            bandit -r . -f json -o bandit-results.json || true
+
+            # Dependency security check
+            safety check || true
+          fi
+
+      - name: Run Go quality checks
+        if: always()
+        continue-on-error: true
+        run: |
+          if find . -name "*.go" -type f | grep -q .; then
+            echo "Running Go quality checks..."
+
+            # Linting with golangci-lint
+            golangci-lint run || true
+
+            # Static analysis with staticcheck
+            staticcheck ./... || true
+
+            # Vulnerability check
+            go list -json -deps ./... | nancy sleuth || true
+          fi
+
+      - name: Run Node.js quality checks
+        if: always()
+        continue-on-error: true
+        run: |
+          if find . \( -name "*.js" -o -name "*.ts" -o -name "*.jsx" -o -name "*.tsx" \) -type f | grep -q .; then
+            echo "Running Node.js quality checks..."
+
+            # TypeScript compilation check
+            if [ -f "tsconfig.json" ]; then
+              npx tsc --noEmit || true
+            fi
+
+            # ESLint check
+            if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ] || [ -f "eslint.config.js" ]; then
+              npx eslint "**/*.{js,jsx,ts,tsx}" || true
+            fi
+          fi
+
+      - name: Upload quality results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-check-results
+          path: |
+            bandit-results.json
+            *.log
+          retention-days: 30
