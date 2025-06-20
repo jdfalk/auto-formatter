@@ -1,0 +1,24 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "no-duplicate-selectors": true,
+    "color-named": "never",
+    "function-url-quotes": "always",
+    "comment-whitespace-inside": "always",
+    "rule-empty-line-before": [
+      "always",
+      {
+        "except": ["first-nested"],
+        "ignore": ["after-comment"]
+      }
+    ],
+    "declaration-empty-line-before": "never"
+  },
+  "ignoreFiles": [
+    "node_modules/**/*",
+    "build/**/*",
+    "dist/**/*",
+    "coverage/**/*",
+    "*.min.css"
+  ]
+}
