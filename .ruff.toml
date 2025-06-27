@@ -152,7 +152,7 @@ multiline-quotes = "double"
 # Maximum cyclomatic complexity (Google recommends keeping functions simple)
 max-complexity = 10
 
-[lint.flake8-naming]
+[lint.pep8-naming]
 # Google style naming conventions
 classmethod-decorators = ["classmethod"]
 staticmethod-decorators = ["staticmethod"]
