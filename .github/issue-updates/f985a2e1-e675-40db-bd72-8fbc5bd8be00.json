@@ -1,0 +1,8 @@
+{
+  "action": "create",
+  "title": "Introduce pre-commit configuration",
+  "body": "Add a .pre-commit-config.yaml using ruff, gofmt, prettier and other tools to enable local formatting before commits. Document setup steps in README.",
+  "labels": ["enhancement", "codex"],
+  "guid": "c1dc51ef-3bc7-4234-9244-2a3cecde3df7",
+  "legacy_guid": "create-introduce-pre-commit-configuration-2025-06-28"
+}
