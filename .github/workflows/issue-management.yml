@@ -1,4 +1,6 @@
 # file: .github/workflows/reusable-issue-management.yml
+# version: 1.0.0
+# guid: 00000000-0000-0000-0000-000000000000
 #
 # Issue Management Workflow (calls ghcommon reusable workflow)
 #
@@ -7,6 +9,13 @@
 # Usage: Triggers on workflow_dispatch or manually as needed.
 
 name: Issue Management (Unified)
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  actions: read
+  checks: write
 
 on:
   workflow_dispatch:
