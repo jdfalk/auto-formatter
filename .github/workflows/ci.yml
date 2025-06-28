@@ -1,4 +1,7 @@
 # file: .github/workflows/ci.yml
+# version: 2.0.0
+# guid: 8e1b2c3d-4f5a-6b7c-8d9e-0a1b2c3d4e5f
+
 name: CI
 
 on:
@@ -7,47 +10,16 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
-  test:
-    name: Test Action
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements-dev.txt
-          npm install
-
-      - name: Run tests
-        run: |
-          python -m pytest test/ -v --cov=scripts
-
-      - name: Lint code
-        run: |
-          ruff check scripts/ test/
-          npx eslint . --ext .js,.json
-
-      - name: Test action locally
-        uses: ./
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          languages: 'python,nodejs'
-          add-pr-comment: false
+  universal-ci:
+    uses: jdfalk/ghcommon/.github/workflows/reusable-ci.yml@main
+    with:
+      python-version: "3.12"
+      node-version: "22"
+      go-version: "1.22"
+      run-lint: true
+      run-test: true
+      run-build: false
+      enable-backend-frontend: false
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
