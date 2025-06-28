@@ -15,11 +15,11 @@ on:
   workflow_dispatch:
     inputs:
       languages:
-        description: 'Languages to format (comma-separated: python,go,nodejs,css,markdown,html,all)'
+        description: "Languages to format (comma-separated: python,go,nodejs,css,markdown,html,all)"
         required: false
-        default: 'all'
+        default: "all"
       force-format:
-        description: 'Force formatting even if last commit was auto-format'
+        description: "Force formatting even if last commit was auto-format"
         type: boolean
         required: false
         default: false
@@ -51,9 +51,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           languages: ${{ github.event.inputs.languages || 'all' }}
           python-line-length: 88
-          commit-message: 'style: auto-format code with comprehensive formatters'
+          commit-message: "style: auto-format code with comprehensive formatters"
           add-pr-comment: true
-          working-directory: '.'
+          working-directory: "."
 
       - name: Run Issue Management
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -89,17 +89,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: "1.24"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install quality tools
         run: |

@@ -2,10 +2,12 @@
 
 # Changelog
 
-All notable changes to the Auto Formatter action will be documented in this file.
+All notable changes to the Auto Formatter action will be documented in this
+file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.0.0] - 2025-06-20
 
@@ -13,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Core Features
 
-- **Multi-language auto-formatting** support for Python, Go, JavaScript/TypeScript, CSS, Markdown, HTML
+- **Multi-language auto-formatting** support for Python, Go,
+  JavaScript/TypeScript, CSS, Markdown, HTML
 - **Smart skip detection** to avoid redundant formatting runs
 - **Configurable language selection** with granular control
 - **Automatic tool installation** for all supported formatters

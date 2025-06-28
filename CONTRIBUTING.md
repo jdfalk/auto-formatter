@@ -2,7 +2,8 @@
 
 # Contributing to Auto Formatter
 
-We welcome contributions to the Auto Formatter GitHub Action! This document provides guidelines for contributing to the project.
+We welcome contributions to the Auto Formatter GitHub Action! This document
+provides guidelines for contributing to the project.
 
 ## Development Setup
 
@@ -55,6 +56,7 @@ We welcome contributions to the Auto Formatter GitHub Action! This document prov
    ```
 
 2. **Make your changes**
+
    - Follow the coding standards outlined below
    - Add tests for new functionality
    - Update documentation as needed
@@ -81,7 +83,8 @@ We welcome contributions to the Auto Formatter GitHub Action! This document prov
 
 ### Commit Message Convention
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+We follow the [Conventional Commits](https://www.conventionalcommits.org/)
+specification:
 
 - **feat**: A new feature
 - **fix**: A bug fix
@@ -192,18 +195,22 @@ class TestFormattingManager:
 To add support for a new programming language:
 
 1. **Update action.yml**
+
    - Add new input parameters if needed
    - Update action description
 
 2. **Modify the formatting steps**
+
    - Add tool installation in the "Install formatters" step
    - Add a new formatting step for the language
 
 3. **Update configuration files**
+
    - Add default configuration files for the language
    - Update .prettierignore or similar ignore files
 
 4. **Add tests**
+
    - Create tests for the new language formatting
    - Test both success and error cases
 
@@ -217,7 +224,9 @@ To add support for a new programming language:
 ```yaml
 # In action.yml
 - name: Run Rust formatting
-  if: steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages, 'rust') || contains(inputs.languages, 'all'))
+  if:
+    steps.check_commit.outputs.skip == 'false' && (contains(inputs.languages,
+    'rust') || contains(inputs.languages, 'all'))
   shell: bash
   run: |
     cd ${{ inputs.working-directory }}
@@ -261,6 +270,7 @@ We use [Semantic Versioning](https://semver.org/):
 ### Release Checklist
 
 1. **Update version numbers**
+
    - action.yml
    - package.json
    - CHANGELOG.md

@@ -2,8 +2,8 @@
 
 A comprehensive GitHub Action for automatically formatting code across multiple
 programming languages and file types. This action provides consistent code
-formatting for Python, Go, JavaScript/TypeScript, CSS, Markdown, HTML, and
-many other common file formats.
+formatting for Python, Go, JavaScript/TypeScript, CSS, Markdown, HTML, and many
+other common file formats.
 
 ## Features
 
@@ -59,21 +59,21 @@ jobs:
         uses: jdfalk/auto-formatter@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          languages: 'all'
+          languages: "all"
 ```
 
 ### Advanced Configuration
 
 ```yaml
-      - name: Auto Format Code
-        uses: jdfalk/auto-formatter@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          languages: 'python,go,nodejs,css,markdown'
-          python-line-length: 88
-          commit-message: 'style: auto-format with custom message'
-          add-pr-comment: true
-          working-directory: '.'
+- name: Auto Format Code
+  uses: jdfalk/auto-formatter@v1
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    languages: "python,go,nodejs,css,markdown"
+    python-line-length: 88
+    commit-message: "style: auto-format with custom message"
+    add-pr-comment: true
+    working-directory: "."
 ```
 
 ## Configuration Options
@@ -135,7 +135,8 @@ The action includes an enhanced issue management system:
 
 ### Features
 
-- **Copilot Review Tickets**: Automatically manages GitHub Copilot review comments
+- **Copilot Review Tickets**: Automatically manages GitHub Copilot review
+  comments
 - **Duplicate Issue Cleanup**: Identifies and closes duplicate issues
 - **CodeQL Security Alerts**: Creates issues for security vulnerabilities
 - **Formatting Analysis**: Detects and reports code formatting inconsistencies
@@ -163,7 +164,7 @@ python scripts/issue_manager.py close-duplicates --dry-run
 ```yaml
 - uses: jdfalk/auto-formatter@v1
   with:
-    languages: 'python,go'
+    languages: "python,go"
     python-line-length: 120
 ```
 
@@ -172,7 +173,7 @@ python scripts/issue_manager.py close-duplicates --dry-run
 ```yaml
 - uses: jdfalk/auto-formatter@v1
   with:
-    commit-message: 'feat: apply automated code formatting'
+    commit-message: "feat: apply automated code formatting"
     add-pr-comment: false
 ```
 
@@ -181,8 +182,8 @@ python scripts/issue_manager.py close-duplicates --dry-run
 ```yaml
 - uses: jdfalk/auto-formatter@v1
   with:
-    working-directory: 'backend/'
-    languages: 'python,go'
+    working-directory: "backend/"
+    languages: "python,go"
 ```
 
 ## Output Values

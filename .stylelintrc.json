@@ -14,11 +14,5 @@
     ],
     "declaration-empty-line-before": "never"
   },
-  "ignoreFiles": [
-    "node_modules/**/*",
-    "build/**/*",
-    "dist/**/*",
-    "coverage/**/*",
-    "*.min.css"
-  ]
+  "ignoreFiles": ["node_modules/**/*", "build/**/*", "dist/**/*", "coverage/**/*", "*.min.css"]
 }

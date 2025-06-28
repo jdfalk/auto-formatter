@@ -12,7 +12,7 @@ run:
   # Include test files in analysis
   tests: true
   # Set Go version
-  go: '1.23'
+  go: "1.23"
   # Mode used to evaluate relative paths
   relative-path-mode: gomod
   # Allow parallel runners
@@ -56,106 +56,106 @@ linters:
   # Enable comprehensive set of linters for Google Go style
   enable:
     # Core linters (always enabled for Google style)
-    - errcheck         # Check for unchecked errors
-    - gosimple         # Simplify code
-    - govet            # Vet examines Go source code
-    - ineffassign      # Detect ineffectual assignments
-    - staticcheck      # Go static analysis
-    - unused           # Check for unused constants, variables, functions and types
+    - errcheck # Check for unchecked errors
+    - gosimple # Simplify code
+    - govet # Vet examines Go source code
+    - ineffassign # Detect ineffectual assignments
+    - staticcheck # Go static analysis
+    - unused # Check for unused constants, variables, functions and types
 
     # Formatting linters (Google style requirements)
-    - gofmt            # Check if code was gofmt-ed
-    - gofumpt          # Stricter gofmt
-    - goimports        # Check imports formatting
-    - whitespace       # Check for trailing whitespace
+    - gofmt # Check if code was gofmt-ed
+    - gofumpt # Stricter gofmt
+    - goimports # Check imports formatting
+    - whitespace # Check for trailing whitespace
 
     # Code quality linters
-    - goconst          # Find repeated strings that could be constants
-    - gocyclo          # Check cyclomatic complexity
-    - gocognit         # Check cognitive complexity
-    - cyclop           # Check function and package cyclomatic complexity
-    - funlen           # Check function length
-    - maintidx         # Measure maintainability index
-    - nestif           # Check deeply nested if statements
+    - goconst # Find repeated strings that could be constants
+    - gocyclo # Check cyclomatic complexity
+    - gocognit # Check cognitive complexity
+    - cyclop # Check function and package cyclomatic complexity
+    - funlen # Check function length
+    - maintidx # Measure maintainability index
+    - nestif # Check deeply nested if statements
 
     # Error handling (critical for Google style)
-    - errorlint        # Find code that will cause problems with Go 1.13 error wrapping
-    - errname          # Check error naming conventions
-    - err113           # Check error handling expressions
-    - wrapcheck        # Check that errors are wrapped
-    - nilerr           # Find code that returns nil even if it checks that error is not nil
+    - errorlint # Find code that will cause problems with Go 1.13 error wrapping
+    - errname # Check error naming conventions
+    - err113 # Check error handling expressions
+    - wrapcheck # Check that errors are wrapped
+    - nilerr # Find code that returns nil even if it checks that error is not nil
 
     # Security linters
-    - gosec            # Security problems
-    - noctx            # Find sending http request without context.Context
+    - gosec # Security problems
+    - noctx # Find sending http request without context.Context
 
     # Naming and style conventions
-    - revive           # Replacement for golint
-    - stylecheck       # Stylecheck is replacement for golint
-    - godot            # Check if comments end in a period
-    - misspell         # Find commonly misspelled English words
-    - predeclared      # Find code that shadows one of Go's predeclared identifiers
+    - revive # Replacement for golint
+    - stylecheck # Stylecheck is replacement for golint
+    - godot # Check if comments end in a period
+    - misspell # Find commonly misspelled English words
+    - predeclared # Find code that shadows one of Go's predeclared identifiers
 
     # Import and dependency management
-    - importas         # Enforce consistent import aliases
-    - depguard         # Go linter that checks if package imports are allowed
+    - importas # Enforce consistent import aliases
+    - depguard # Go linter that checks if package imports are allowed
 
     # Performance and optimization
-    - prealloc         # Find slice declarations that could potentially be preallocated
-    - unconvert        # Remove unnecessary type conversions
-    - unparam          # Report unused function parameters
-    - makezero         # Find slice declarations with non-zero initial length
-    - wastedassign     # Find wasted assignment statements
+    - prealloc # Find slice declarations that could potentially be preallocated
+    - unconvert # Remove unnecessary type conversions
+    - unparam # Report unused function parameters
+    - makezero # Find slice declarations with non-zero initial length
+    - wastedassign # Find wasted assignment statements
 
     # Testing linters
-    - thelper          # Detect golang test helpers without t.Helper() call
-    - tparallel        # Detect inappropriate usage of t.Parallel() method
+    - thelper # Detect golang test helpers without t.Helper() call
+    - tparallel # Detect inappropriate usage of t.Parallel() method
     - testableexamples # Check if examples are testable
 
     # Context handling
-    - containedctx     # Check that contexts are not contained in structs
-    - contextcheck     # Check whether contexts are passed by value
+    - containedctx # Check that contexts are not contained in structs
+    - contextcheck # Check whether contexts are passed by value
 
     # Type safety
-    - exhaustive       # Check exhaustiveness of enum switch statements
-    - forcetypeassert  # Find forced type assertions
-    - nilnil           # Check that there is no simultaneous return of nil error and nil value
+    - exhaustive # Check exhaustiveness of enum switch statements
+    - forcetypeassert # Find forced type assertions
+    - nilnil # Check that there is no simultaneous return of nil error and nil value
 
     # Documentation and comments
-    - godox            # Detect FIXME, TODO and other comment keywords
-    - nolintlint       # Reports ill-formed or insufficient nolint directives
+    - godox # Detect FIXME, TODO and other comment keywords
+    - nolintlint # Reports ill-formed or insufficient nolint directives
 
     # SQL and resource management
-    - rowserrcheck     # Check whether Err of rows is checked successfully
-    - sqlclosecheck    # Check that sql.Rows and sql.Stmt are closed
+    - rowserrcheck # Check whether Err of rows is checked successfully
+    - sqlclosecheck # Check that sql.Rows and sql.Stmt are closed
 
     # Miscellaneous quality checks
-    - dupl             # Code clone detection
-    - durationcheck    # Check for two durations multiplied together
+    - dupl # Code clone detection
+    - durationcheck # Check for two durations multiplied together
     - gochecknoglobals # Check that no global variables exist
-    - gochecknoinits   # Check that no init functions are present
-    - lll              # Reports long lines
-    - nakedret         # Find naked returns in functions greater than a specified function length
-    - nonamedreturns   # Reports all named returns
+    - gochecknoinits # Check that no init functions are present
+    - lll # Reports long lines
+    - nakedret # Find naked returns in functions greater than a specified function length
+    - nonamedreturns # Reports all named returns
     - nosprintfhostport # Check for misuse of Sprintf to construct a host with port
-    - reassign         # Check that package variables are not reassigned
-    - usestdlibvars    # Detect the possibility to use variables from stdlib
-    - perfsprint       # Check that fmt.Sprintf can be replaced with a faster alternative
-    - mnd              # Magic number detector
-    - gocritic         # The most opinionated Go source code linter
+    - reassign # Check that package variables are not reassigned
+    - usestdlibvars # Detect the possibility to use variables from stdlib
+    - perfsprint # Check that fmt.Sprintf can be replaced with a faster alternative
+    - mnd # Magic number detector
+    - gocritic # The most opinionated Go source code linter
 
   # Disable linters that conflict with Google style or are too noisy
   disable:
-    - varnamelen       # Checks that variable names are long enough (conflicts with Go idioms)
-    - nlreturn         # Requires new line before return (too strict)
-    - wsl              # Whitespace linter (too opinionated)
-    - exhaustruct      # Requires exhaustive struct initialization (too strict)
-    - gochecksumtype   # Requires exhaustive type switching (too strict for all cases)
-    - ireturn          # Accept interfaces, return concrete types (sometimes too strict)
-    - paralleltest     # Detect missing usage of t.Parallel() (not always needed)
-    - testpackage      # Require separate _test package (not Google requirement)
-    - forbidigo        # Forbid identifiers (project-specific)
-    - tagalign         # Check struct tags alignment (cosmetic)
+    - varnamelen # Checks that variable names are long enough (conflicts with Go idioms)
+    - nlreturn # Requires new line before return (too strict)
+    - wsl # Whitespace linter (too opinionated)
+    - exhaustruct # Requires exhaustive struct initialization (too strict)
+    - gochecksumtype # Requires exhaustive type switching (too strict for all cases)
+    - ireturn # Accept interfaces, return concrete types (sometimes too strict)
+    - paralleltest # Detect missing usage of t.Parallel() (not always needed)
+    - testpackage # Require separate _test package (not Google requirement)
+    - forbidigo # Forbid identifiers (project-specific)
+    - tagalign # Check struct tags alignment (cosmetic)
 
   # Linter-specific settings
   settings:
@@ -286,14 +286,14 @@ linters:
         - assign
       # List of numbers to exclude from analysis
       ignored-numbers:
-        - '0'
-        - '1'
-        - '2'
-        - '3'
-        - '10'
-        - '100'
-        - '1000'
-        - '1024'
+        - "0"
+        - "1"
+        - "2"
+        - "3"
+        - "10"
+        - "100"
+        - "1000"
+        - "1024"
 
     # Import aliases configuration
     importas:
@@ -335,7 +335,50 @@ linters:
         - name: var-naming
           severity: warning
           arguments:
-            - ["ID", "VM", "URL", "HTTP", "JSON", "API", "ASCII", "CPU", "CSS", "DNS", "EOF", "GUID", "HTML", "HTTP", "HTTPS", "ID", "IP", "JSON", "LHS", "QPS", "RAM", "RHS", "RPC", "SLA", "SMTP", "SQL", "SSH", "TCP", "TLS", "TTL", "UDP", "UI", "UID", "UUID", "URI", "URL", "UTF8", "VM", "XML", "XMPP", "XSRF", "XSS"]
+            - [
+                "ID",
+                "VM",
+                "URL",
+                "HTTP",
+                "JSON",
+                "API",
+                "ASCII",
+                "CPU",
+                "CSS",
+                "DNS",
+                "EOF",
+                "GUID",
+                "HTML",
+                "HTTP",
+                "HTTPS",
+                "ID",
+                "IP",
+                "JSON",
+                "LHS",
+                "QPS",
+                "RAM",
+                "RHS",
+                "RPC",
+                "SLA",
+                "SMTP",
+                "SQL",
+                "SSH",
+                "TCP",
+                "TLS",
+                "TTL",
+                "UDP",
+                "UI",
+                "UID",
+                "UUID",
+                "URI",
+                "URL",
+                "UTF8",
+                "VM",
+                "XML",
+                "XMPP",
+                "XSRF",
+                "XSS",
+              ]
         # Warns on package naming conventions
         - name: package-comments
           severity: warning
