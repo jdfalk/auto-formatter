@@ -1,0 +1,8 @@
+{
+  "action": "create",
+  "title": "Create release workflow",
+  "body": "Add a GitHub Actions workflow that publishes a new release to the Marketplace when a tag is pushed. Include steps to generate changelog and upload action.yml.",
+  "labels": ["enhancement", "codex"],
+  "guid": "087f05fd-4b3d-4920-bd33-7f971c6b1bf6",
+  "legacy_guid": "create-create-release-workflow-2025-06-28"
+}

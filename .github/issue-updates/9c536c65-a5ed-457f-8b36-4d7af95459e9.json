@@ -1,0 +1,8 @@
+{
+  "action": "create",
+  "title": "Add YAML linting support",
+  "body": "Integrate yamllint to check YAML files and add 'yaml' as a supported language in action.yml. Update README and tests.",
+  "labels": ["enhancement", "codex"],
+  "guid": "4de6774a-f910-43b8-b3bf-e9737d9f039d",
+  "legacy_guid": "create-add-yaml-linting-support-2025-06-28"
+}
