@@ -1,0 +1,8 @@
+{
+  "action": "create",
+  "title": "Implement missing issue_manager.py",
+  "body": "Add the missing scripts/issue_manager.py and supporting tests to restore issue management functionality.",
+  "labels": ["enhancement", "codex"],
+  "guid": "e75a8c61-272d-4ede-83d4-abe2a490c5e4",
+  "legacy_guid": "create-implement-missing-issue-manager-py-2025-06-28"
+}

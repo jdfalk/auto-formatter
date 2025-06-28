@@ -1,0 +1,8 @@
+{
+  "action": "create",
+  "title": "Add dependency caching and incremental formatting",
+  "body": "Introduce caching for dependencies and an option to format only changed files, improving action performance.",
+  "labels": ["enhancement", "codex"],
+  "guid": "79ef9941-416c-4fb5-b913-1bd9b3a605fd",
+  "legacy_guid": "create-add-dependency-caching-and-incremental-formatting-2025-06-28"
+}

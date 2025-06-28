@@ -1,0 +1,8 @@
+{
+  "action": "create",
+  "title": "Introduce Rust formatting support",
+  "body": "Add rustfmt integration to support Rust projects.",
+  "labels": ["enhancement", "codex"],
+  "guid": "22419a71-7031-496d-8129-ec7262d2e757",
+  "legacy_guid": "create-introduce-rust-formatting-support-2025-06-28"
+}
