@@ -1,6 +1,4 @@
-# file: .github/workflows/reusable-issue-management.yml
-# version: 1.0.0
-# guid: 00000000-0000-0000-0000-000000000000
+# file: .github/workflows/issue-management.yml
 #
 # Issue Management Workflow (calls ghcommon reusable workflow)
 #
@@ -10,12 +8,15 @@
 
 name: Issue Management (Unified)
 
+# Permissions required by the reusable workflow
 permissions:
-  contents: read
-  pull-requests: write
-  issues: write
-  actions: read
-  checks: write
+  contents: write # For creating commits and PRs
+  issues: write # For creating and updating issues
+  pull-requests: write # For creating PRs
+  security-events: read # For reading CodeQL alerts
+  repository-projects: read # For accessing project data
+  actions: read # For workflow access
+  checks: write # For workflow status
 
 on:
   workflow_dispatch:
