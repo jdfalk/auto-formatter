@@ -1,0 +1,8 @@
+{
+  "action": "create",
+  "title": "Implement GitHub App version",
+  "body": "Develop a GitHub App variant of the action for granular permissions and easier installation. Include authentication setup, deployment instructions, and update workflows.",
+  "labels": ["enhancement", "codex"],
+  "guid": "d70a135a-80fc-4881-a846-4bf2ea1456ce",
+  "legacy_guid": "create-implement-github-app-version-2025-06-29"
+}

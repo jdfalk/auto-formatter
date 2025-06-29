@@ -1,0 +1,8 @@
+{
+  "action": "create",
+  "title": "Add Dockerfile linting and formatting",
+  "body": "Integrate hadolint and dockerfile formatting using shfmt or dockfmt. Update action.yml to include Dockerfile in languages. Document usage in README and add tests.",
+  "labels": ["enhancement", "codex"],
+  "guid": "51125d49-6770-4947-9ff1-e6c213a3a3b0",
+  "legacy_guid": "create-add-dockerfile-linting-and-formatting-2025-06-29"
+}
