@@ -1,0 +1,8 @@
+{
+  "action": "create",
+  "title": "Add Terraform formatting support",
+  "body": "Use 'terraform fmt' for .tf files. Update action.yml to include terraform language option, install terraform, and add examples and tests.",
+  "labels": ["enhancement", "codex"],
+  "guid": "c468aaa2-fbbc-4aab-9bd8-b4dd2d0c1f04",
+  "legacy_guid": "create-add-terraform-formatting-support-2025-06-29"
+}
